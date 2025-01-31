@@ -14,26 +14,45 @@ const submitAnswer = document.getElementById('submitAnswer');
 const backToLesson = document.getElementById('backToLesson');
 const quizFeedback = document.getElementById('quizFeedback');
 
-let currentLesson = 0;
-let currentQuiz = 0;
 let lessons = [
-    "The discovery of X-rays by Wilhelm Conrad Roentgen in 1895 revolutionized medical diagnostics.",
-    "Radiation safety is critical to minimizing exposure to ionizing radiation. The ALARA principle stands for As Low As Reasonably Achievable.",
-    "Radiation comes in two forms: ionizing and non-ionizing. Examples of ionizing radiation include X-rays, and non-ionizing includes ultraviolet light."
-];
-
-let quizzes = [
     {
-        question: "Who discovered X-rays?",
-        answer: "Wilhelm Roentgen"
+        lessonText: "The discovery of X-rays by Wilhelm Conrad Roentgen in 1895 revolutionized medical diagnostics.",
+        quizzes: [
+            {
+                question: "Who discovered X-rays?",
+                answer: "Wilhelm Roentgen"
+            },
+            {
+                question: "In what year were X-rays discovered?",
+                answer: "1895"
+            }
+        ]
     },
     {
-        question: "What does ALARA stand for?",
-        answer: "As Low As Reasonably Achievable"
+        lessonText: "Radiation safety is critical to minimizing exposure to ionizing radiation. The ALARA principle stands for As Low As Reasonably Achievable.",
+        quizzes: [
+            {
+                question: "What does ALARA stand for?",
+                answer: "As Low As Reasonably Achievable"
+            },
+            {
+                question: "Why is radiation safety important?",
+                answer: "To minimize exposure to ionizing radiation"
+            }
+        ]
     },
     {
-        question: "What type of radiation includes ultraviolet light?",
-        answer: "Non-ionizing"
+        lessonText: "Radiation comes in two forms: ionizing and non-ionizing. Examples of ionizing radiation include X-rays, and non-ionizing includes ultraviolet light.",
+        quizzes: [
+            {
+                question: "What type of radiation includes ultraviolet light?",
+                answer: "Non-ionizing"
+            },
+            {
+                question: "What type of radiation is X-rays?",
+                answer: "Ionizing"
+            }
+        ]
     }
 ];
 
@@ -94,21 +113,44 @@ function drawGame() {
     }
 }
 
+let currentLesson = 0; // Keep track of the current lesson
+let currentQuiz = 0;    // Keep track of the current quiz in the current lesson
+
+// Update lesson display
 startButton.addEventListener('click', () => {
     instructions.classList.add('hidden');
     lessonContainer.classList.remove('hidden');
-    lessonText.textContent = lessons[currentLesson];
+    lessonText.textContent = lessons[currentLesson].lessonText;
+    quizQuestion.textContent = lessons[currentLesson].quizzes[currentQuiz].question;
 });
 
+// Move to next quiz within the current lesson
 nextLesson.addEventListener('click', () => {
-    lessonContainer.classList.add('hidden');
-    quizContainer.classList.remove('hidden');
-    quizQuestion.textContent = quizzes[currentQuiz].question;
+    if (currentQuiz + 1 < lessons[currentLesson].quizzes.length) {
+        currentQuiz++; // Move to the next quiz
+        quizQuestion.textContent = lessons[currentLesson].quizzes[currentQuiz].question;
+    } else {
+        // No more quizzes in this lesson, move to the next lesson
+        currentLesson++;
+        currentQuiz = 0; // Reset quiz to the first one in the next lesson
+        if (currentLesson < lessons.length) {
+            lessonText.textContent = lessons[currentLesson].lessonText;
+            quizContainer.classList.add('hidden');
+            lessonContainer.classList.remove('hidden');
+        } else {
+            // All lessons completed, start the game
+            quizContainer.classList.add('hidden');
+            canvas.classList.remove('hidden');
+            gameStarted = true;
+            drawGame();
+        }
+    }
 });
 
+// Handle quiz answer submission
 submitAnswer.addEventListener('click', () => {
     const userAnswer = quizAnswer.value.trim().toLowerCase();
-    const correctAnswer = quizzes[currentQuiz].answer.toLowerCase();
+    const correctAnswer = lessons[currentLesson].quizzes[currentQuiz].answer.toLowerCase();
 
     if (userAnswer === correctAnswer) {
         quizFeedback.textContent = "Correct!";
@@ -119,17 +161,11 @@ submitAnswer.addEventListener('click', () => {
             quizFeedback.classList.add('hidden');
             quizAnswer.value = "";
             currentQuiz++;
-            currentLesson++;
 
-            if (currentLesson < lessons.length) {
-                lessonText.textContent = lessons[currentLesson];
-                quizContainer.classList.add('hidden');
-                lessonContainer.classList.remove('hidden');
+            if (currentQuiz < lessons[currentLesson].quizzes.length) {
+                quizQuestion.textContent = lessons[currentLesson].quizzes[currentQuiz].question;
             } else {
-                quizContainer.classList.add('hidden');
-                canvas.classList.remove('hidden');
-                gameStarted = true;
-                drawGame();
+                nextLesson.click();
             }
         }, 1000);
     } else {

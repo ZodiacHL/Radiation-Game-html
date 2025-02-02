@@ -1,6 +1,12 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+const dexterhurt = new Image();
+const dextersmile = new Image();
+
+dexterhurt.src = '/Dexter Hurt.png';
+dextersmile.src = '/Dexter Smile.png';
+
 const instructions = document.querySelector('.instructions');
 const lessonContainer = document.getElementById('lessonContainer');
 const lessonText = document.getElementById('lessonText');
@@ -20,11 +26,11 @@ let lessons = [
         quizzes: [
             {
                 question: "Who discovered X-rays?",
-                answer: "Wilhelm Roentgen"
+                answer: "1"
             },
             {
                 question: "In what year were X-rays discovered?",
-                answer: "1895"
+                answer: "2"
             }
         ]
     },
@@ -33,11 +39,11 @@ let lessons = [
         quizzes: [
             {
                 question: "What does ALARA stand for?",
-                answer: "As Low As Reasonably Achievable"
+                answer: "3"
             },
             {
                 question: "Why is radiation safety important?",
-                answer: "To minimize exposure to ionizing radiation"
+                answer: "4"
             }
         ]
     },
@@ -46,20 +52,25 @@ let lessons = [
         quizzes: [
             {
                 question: "What type of radiation includes ultraviolet light?",
-                answer: "Non-ionizing"
+                answer: "5"
             },
             {
                 question: "What type of radiation is X-rays?",
-                answer: "Ionizing"
+                answer: "6"
             }
         ]
     }
 ];
 
+// Adjust these scale factors to resize the image
+const scaleFactor = 3.5; // 1.5 means 150% of the original size
+
 let gameStarted = false;
 let xrayMachine = { x: 200, y: 300, width: 50, height: 20 };
-let dummy = { x: 600, y: 300, radius: 30 };
+let dummy = { x: 600, y: 300, radius: 30, image: dexterhurt };
 let beam = { x: 0, y: 0, width: 100, height: 5, active: false };
+
+const adjustedRadius = dummy.radius * scaleFactor;
 
 document.addEventListener('keydown', (e) => {
     if (!gameStarted) return;
@@ -82,10 +93,12 @@ function fireBeam() {
     drawGame();
 
     setTimeout(() => {
-        if (Math.abs(beam.y - dummy.y) < dummy.radius) {
+        if (Math.abs(beam.y - dummy.y) < adjustedRadius) {
             alert("The X-ray targeted Dexter correctly!");
+            dummy.image = dextersmile; // Update the image to smile
         } else {
             alert("The X-ray missed Dexter. Try again.");
+            dummy.image = dexterhurt; // Revert to hurt if missed
         }
         beam.active = false;
         drawGame();
@@ -99,16 +112,19 @@ function drawGame() {
     ctx.fillStyle = 'gray';
     ctx.fillRect(xrayMachine.x, xrayMachine.y, xrayMachine.width, xrayMachine.height);
 
-    // Draw dummy
+    ctx.imageSmoothingEnabled = true;  // Enable smoothing
+    // Draw dummy using drawImage instead of createPattern
+    ctx.save();
     ctx.beginPath();
-    ctx.arc(dummy.x, dummy.y, dummy.radius, 0, Math.PI * 2);
-    ctx.fillStyle = 'pink';
-    ctx.fill();
+    ctx.arc(dummy.x, dummy.y, adjustedRadius, 0, Math.PI * 2);
     ctx.closePath();
+    ctx.clip(); // Clip to ensure the circular shape
+    ctx.drawImage(dummy.image, dummy.x - adjustedRadius, dummy.y - adjustedRadius, adjustedRadius * 2, adjustedRadius * 2);
+    ctx.restore();
 
     // Draw beam
     if (beam.active) {
-        ctx.fillStyle = 'yellow';
+        ctx.fillStyle = 'green';
         ctx.fillRect(beam.x, beam.y - beam.height / 2, beam.width, beam.height);
     }
 }

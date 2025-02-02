@@ -12,7 +12,7 @@ body {
 canvas {
     display: block;
     margin: 20px auto;
-    background-color: white;
+    background-color: whitesmoke;
     border: 2px solid black;
 }
 .instructions, .lesson, .quiz {

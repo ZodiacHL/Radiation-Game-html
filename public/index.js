@@ -83,9 +83,9 @@ function fireBeam() {
 
     setTimeout(() => {
         if (Math.abs(beam.y - dummy.y) < dummy.radius) {
-            alert("The X-ray targeted the dummy correctly!");
+            alert("The X-ray targeted Dexter correctly!");
         } else {
-            alert("The X-ray missed the dummy. Try again.");
+            alert("The X-ray missed Dexter. Try again.");
         }
         beam.active = false;
         drawGame();
@@ -120,36 +120,41 @@ let currentQuiz = 0;    // Keep track of the current quiz in the current lesson
 startButton.addEventListener('click', () => {
     instructions.classList.add('hidden');
     lessonContainer.classList.remove('hidden');
-    quizContainer.classList.add('hidden');
+    quizContainer.classList.remove('hidden');
     lessonText.textContent = lessons[currentLesson].lessonText;
     quizQuestion.textContent = lessons[currentLesson].quizzes[currentQuiz].question;
 });
 
 // Move to next quiz within the current lesson
 nextLesson.addEventListener('click', () => {
-    if (currentQuiz === 0) {
+    if (currentQuiz !== 0) {
         quizContainer.classList.remove('hidden');
+        quizQuestion.textContent = lessons[currentLesson].quizzes[currentQuiz].question;
     } else {
-
-        if (currentQuiz + 1 < lessons[currentLesson].quizzes.length) {
-            currentQuiz++; // Move to the next quiz
-            
-            quizQuestion.textContent = lessons[currentLesson].quizzes[currentQuiz].question;
+        if (currentQuiz === 0) {
+            quizContainer.classList.remove('hidden');
         } else {
-            // No more quizzes in this lesson, move to the next lesson
-            currentLesson++;
-            currentQuiz = 0; // Reset quiz to the first one in the next lesson
-            if (currentLesson < lessons.length) {
-                lessonText.textContent = lessons[currentLesson].lessonText;
+    
+            if (currentQuiz + 1 < lessons[currentLesson].quizzes.length) {
+                currentQuiz++; // Move to the next quiz
+                
                 quizQuestion.textContent = lessons[currentLesson].quizzes[currentQuiz].question;
-                lessonContainer.classList.remove('hidden');
             } else {
-                // All lessons completed, start the game
-                lessonContainer.classList.add('hidden');
-                quizContainer.classList.add('hidden');
-                canvas.classList.remove('hidden');
-                gameStarted = true;
-                drawGame();
+                // No more quizzes in this lesson, move to the next lesson
+                currentLesson++;
+                currentQuiz = 0; // Reset quiz to the first one in the next lesson
+                if (currentLesson < lessons.length) {
+                    lessonText.textContent = lessons[currentLesson].lessonText;
+                    quizQuestion.textContent = lessons[currentLesson].quizzes[currentQuiz].question;
+                    lessonContainer.classList.remove('hidden');
+                } else {
+                    // All lessons completed, start the game
+                    lessonContainer.classList.add('hidden');
+                    quizContainer.classList.add('hidden');
+                    canvas.classList.remove('hidden');
+                    gameStarted = true;
+                    drawGame();
+                }
             }
         }
     }
@@ -174,7 +179,28 @@ submitAnswer.addEventListener('click', () => {
             if (currentQuiz < lessons[currentLesson].quizzes.length) {
                 quizQuestion.textContent = lessons[currentLesson].quizzes[currentQuiz].question;
             } else {
-                nextLesson.click();
+                if (currentQuiz + 1 < lessons[currentLesson].quizzes.length) {
+                    currentQuiz++; // Move to the next quiz
+                    
+                    quizQuestion.textContent = lessons[currentLesson].quizzes[currentQuiz].question;
+                } else {
+                    // No more quizzes in this lesson, move to the next lesson
+                    currentLesson++;
+                    currentQuiz = 0; // Reset quiz to the first one in the next lesson
+                    if (currentLesson < lessons.length) {
+                        lessonText.textContent = lessons[currentLesson].lessonText;
+                        quizQuestion.textContent = lessons[currentLesson].quizzes[currentQuiz].question;
+                        lessonContainer.classList.remove('hidden');
+                    } else {
+                        // All lessons completed, start the game
+                        lessonContainer.classList.add('hidden');
+                        quizContainer.classList.add('hidden');
+                        canvas.classList.remove('hidden');
+                        gameStarted = true;
+                        drawGame();
+                    }
+                }
+                
             }
         }, 1000);
     } else {

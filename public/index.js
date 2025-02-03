@@ -22,7 +22,7 @@ const quizFeedback = document.getElementById('quizFeedback');
 
 let lessons = [
     {
-        lessonText: "The discovery of X-rays by Wilhelm Roentgen in 1895 revolutionized medical diagnostics. Roentgen discovered X-rays while experimenting with cathode rays and noticed that these rays could pass through objects and produce an image of his wife, Anna Ludwigs, hand on a photographic plate.",
+        lessonText: "The discovery of X-rays by Wilhelm Roentgen in 1895 revolutionized medical diagnostics. Roentgen discovered X-rays while experimenting with cathode rays and noticed that these rays could pass through objects and produce an image of his wife, Anna Ludwig's, hand on a photographic plate.",
         quizzes: [
             {
                 question: "Who discovered X-rays?",

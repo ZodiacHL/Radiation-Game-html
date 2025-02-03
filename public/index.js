@@ -22,41 +22,49 @@ const quizFeedback = document.getElementById('quizFeedback');
 
 let lessons = [
     {
-        lessonText: "The discovery of X-rays by Wilhelm Conrad Roentgen in 1895 revolutionized medical diagnostics.",
+        lessonText: "The discovery of X-rays by Wilhelm Roentgen in 1895 revolutionized medical diagnostics. Roentgen discovered X-rays while experimenting with cathode rays and noticed that these rays could pass through objects and produce an image of his wife, Anna Ludwigs, hand on a photographic plate.",
         quizzes: [
             {
                 question: "Who discovered X-rays?",
-                answer: "1"
+                answer: "Wilhelm Roentgen"
             },
             {
                 question: "In what year were X-rays discovered?",
-                answer: "2"
+                answer: "1895"
+            },
+            {
+                question: "Who was first to have an x-ray tested on them?",
+                answer: "Anna Ludwig"
             }
         ]
     },
     {
-        lessonText: "Radiation safety is critical to minimizing exposure to ionizing radiation. The ALARA principle stands for As Low As Reasonably Achievable.",
+        lessonText: "Radiation safety is critical to minimizing exposure to ionizing radiation, especially in medical fields such as dental radiography. The primary guiding principle in radiation safety is ALARA, which stands for As Low As Reasonably Achievable. This principle encourages the reduction of radiation doses to the lowest possible level while still obtaining the necessary diagnostic information.",
         quizzes: [
             {
-                question: "What does ALARA stand for?",
-                answer: "3"
+                question: "Which type of radiation do we aim to minimize exposure of?",
+                answer: "Ionizing"
             },
             {
-                question: "Why is radiation safety important?",
-                answer: "4"
+                question: "What is the radiation safety principle called?",
+                answer: "ALARA"
             }
         ]
     },
     {
-        lessonText: "Radiation comes in two forms: ionizing and non-ionizing. Examples of ionizing radiation include X-rays, and non-ionizing includes ultraviolet light.",
+        lessonText: "Radiation comes in various forms and can be classified into two main categories: ionizing and non-ionizing radiation. Ionizing Radiation: This type of radiation has enough energy to remove tightly bound electrons from atoms, thus creating ions. Ionizing radiation is used in medical imaging, such as X-rays. Non-ionizing Radiation: This type of radiation has lower energy and does not ionize atoms. Examples include ultraviolet (UV) light. Non-ionizing radiation is generally less harmful but can still pose risks.",
         quizzes: [
             {
-                question: "What type of radiation includes ultraviolet light?",
-                answer: "5"
+                question: "What type of radiation leads to the creation of ions?",
+                answer: "Ionizing"
             },
             {
-                question: "What type of radiation is X-rays?",
-                answer: "6"
+                question: "What is an example of ionizing radiation?",
+                answer: "X-rays"
+            },
+            {
+                question: "What is an example of non-ionizing radiation?",
+                answer: "Ultraviolet Light"
             }
         ]
     }
@@ -72,6 +80,10 @@ let beam = { x: 0, y: 0, width: 100, height: 5, active: false };
 
 const adjustedRadius = dummy.radius * scaleFactor;
 
+let exposureLevel = 0; // Initial exposure level
+const maxExposure = 100; // Maximum allowed exposure
+const exposureStep = 10; // Step size for exposure adjustment
+
 document.addEventListener('keydown', (e) => {
     if (!gameStarted) return;
 
@@ -82,8 +94,19 @@ document.addEventListener('keydown', (e) => {
     } else if (e.key === ' ') {
         fireBeam();
     }
+     // Adjust exposure
+     else if (e.key === 'ArrowRight') {
+        adjustExposure(1); // Increase exposure
+    } else if (e.key === 'ArrowLeft') {
+        adjustExposure(-1); // Decrease exposure
+    }
     drawGame();
 });
+
+function adjustExposure(direction) {
+    exposureLevel = Math.min(Math.max(exposureLevel + direction * exposureStep, 0), maxExposure);
+    alert(`Exposure level: ${exposureLevel}`);
+}
 
 function fireBeam() {
     beam.x = xrayMachine.x + xrayMachine.width;
@@ -94,11 +117,20 @@ function fireBeam() {
 
     setTimeout(() => {
         if (Math.abs(beam.y - dummy.y) < adjustedRadius) {
-            alert("The X-ray targeted Dexter correctly!");
-            dummy.image = dextersmile; // Update the image to smile
+            // Check exposure level when the beam hits Dexter
+            if (exposureLevel >= 50 && exposureLevel <= 80) {
+                alert("The X-ray correctly targeted Dexter!");
+                dummy.image = dextersmile; // Update to smile
+            } else if (exposureLevel < 50) {
+                alert("Exposure too low! Adjust and try again.");
+                dummy.image = dexterhurt; // Revert to hurt if missed
+            } else {
+                alert("Exposure too high! Risk of damage!");
+                dummy.image = dexterhurt; // Revert to hurt if too high
+            }
         } else {
             alert("The X-ray missed Dexter. Try again.");
-            dummy.image = dexterhurt; // Revert to hurt if missed
+            dummy.image = dexterhurt;
         }
         beam.active = false;
         drawGame();
@@ -127,6 +159,11 @@ function drawGame() {
         ctx.fillStyle = 'green';
         ctx.fillRect(beam.x, beam.y - beam.height / 2, beam.width, beam.height);
     }
+
+    // Display exposure level
+    ctx.fillStyle = 'black';
+    ctx.font = '20px Arial';
+    ctx.fillText(`Exposure Level: ${exposureLevel}`, 10, 20);
 }
 
 let currentLesson = 0; // Keep track of the current lesson
@@ -225,6 +262,50 @@ submitAnswer.addEventListener('click', () => {
         quizFeedback.classList.remove('hidden');
     }
 });
+
+// Handle quiz answer submission with Enter key
+quizAnswer.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        const userAnswer = quizAnswer.value.trim().toLowerCase();
+        const correctAnswer = lessons[currentLesson].quizzes[currentQuiz].answer.toLowerCase();
+
+        if (userAnswer === correctAnswer) {
+            quizFeedback.textContent = "Correct!";
+            quizFeedback.style.color = "green";
+            quizFeedback.classList.remove('hidden');
+
+            setTimeout(() => {
+                quizFeedback.classList.add('hidden');
+                quizAnswer.value = "";
+                currentQuiz++;
+
+                if (currentQuiz < lessons[currentLesson].quizzes.length) {
+                    quizQuestion.textContent = lessons[currentLesson].quizzes[currentQuiz].question;
+                } else {
+                    currentLesson++;
+                    currentQuiz = 0; // Reset to the first quiz in the next lesson
+                    if (currentLesson < lessons.length) {
+                        lessonText.textContent = lessons[currentLesson].lessonText;
+                        quizQuestion.textContent = lessons[currentLesson].quizzes[currentQuiz].question;
+                        lessonContainer.classList.remove('hidden');
+                    } else {
+                        // All lessons completed, start the game
+                        lessonContainer.classList.add('hidden');
+                        quizContainer.classList.add('hidden');
+                        canvas.classList.remove('hidden');
+                        gameStarted = true;
+                        drawGame();
+                    }
+                }
+            }, 1000);
+        } else {
+            quizFeedback.textContent = "Incorrect. Try again.";
+            quizFeedback.style.color = "red";
+            quizFeedback.classList.remove('hidden');
+        }
+    }
+});
+
 
 backToLesson.addEventListener('click', () => {
     quizContainer.classList.add('hidden');

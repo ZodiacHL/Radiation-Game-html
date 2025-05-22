@@ -19,3 +19,8 @@ The game's objective is to test the player's understanding of key concepts relat
 
 ## 📁 Project Structure
 
+Radiation-Game-html/
+├── index.html        # Main HTML file that runs the game
+├── style.css         # Stylesheet for the game's layout and design
+├── script.js         # JavaScript file containing the game logic
+├── README.md         # Project documentation (You're reading it!)

@@ -2,7 +2,8 @@
 
 Welcome to the **Radiation Game**, a fun and educational browser-based game designed to help dental students reinforce their knowledge of radiology safety and best practices. This project was originally developed as a class presentation tool for a dental hygiene course.
 
-![Radiation Game Screenshot](https://github.com/ZodiacHL/Radiation-Game-html/raw/main/screenshot.png)
+![image](https://github.com/user-attachments/assets/83eaf996-0c5e-4af5-bcc1-bae8cd198347)
+
 
 ## 🎯 Objective
 
